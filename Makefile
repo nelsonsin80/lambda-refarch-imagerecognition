@@ -42,14 +42,14 @@ deploy: ##=> Deploy services
 #  Helpers  #
 #############
 
+.ONESHELL:
 _install_os_packages:
 	$(info [*] Installing jq...)
-	curl -L -o /tmp/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && \
+	curl -L -o /tmp/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
 	chmod +x /tmp/jq
-	# Add /tmp to PATH for this shell
-	export PATH=/tmp:$$PATH && \
-	$(info [*] Upgrading Python SAM CLI and CloudFormation linter to the latest version...) && \
-	export PATH=$$HOME/.local/bin:$$PATH && \
+	export PATH=/tmp:$$PATH
+	$(info [*] Upgrading Python SAM CLI and CloudFormation linter to the latest version...)
+	export PATH=$$HOME/.local/bin:$$PATH
 	python3 -m pip install --upgrade --user cfn-lint aws-sam-cli
 
 define HELP_MESSAGE
