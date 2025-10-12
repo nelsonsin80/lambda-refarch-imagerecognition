@@ -1,7 +1,10 @@
 {
   "main": {
     "awscloudformation": {
-      "Region": "us-east-2"
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-photoshare-main-123456-deployment",
+      "StackName": "amplify-photoshare-main-123456",
+      "AmplifyAppId": "d39m8qzfl7wdoh"
     }
   }
 }
