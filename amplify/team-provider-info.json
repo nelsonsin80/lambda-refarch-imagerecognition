@@ -1,2 +1,7 @@
 {
+  "main": {
+    "awscloudformation": {
+      "Region": "us-east-2"
+    }
+  }
 }
