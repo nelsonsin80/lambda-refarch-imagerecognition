@@ -3,7 +3,7 @@
     "awscloudformation": {
       "Region": "us-east-2",
       "DeploymentBucketName": "amplify-lambdarefarchimagere-main-f161f-deployment",
-      "StackName": "amplify-photoshare-main-123456",
+      "StackName": "amplify-lambdarefarchimagere-main-f161f",
       "AmplifyAppId": "d39m8qzfl7wdoh"
     }
   }
