@@ -2,8 +2,8 @@
   "main": {
     "awscloudformation": {
       "Region": "us-east-2",
-      "DeploymentBucketName": "amplify-lambdarefarchimagere-main-81147-deployment",
-      "StackName": "amplify-lambdarefarchimagere-main-81147",
+      "DeploymentBucketName": "amplify-lambdarefarchimagere-main-cfb75-deployment",
+      "StackName": "amplify-lambdarefarchimagere-main-cfb75",
       "AmplifyAppId": "d39m8qzfl7wdoh"
     }
   }
