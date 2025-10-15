@@ -8,7 +8,8 @@ Amplify Params - DO NOT EDIT */
 
 import { S3Client, GetObjectCommand, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { fromIni, fromEnv } from '@aws-sdk/credential-providers';
-import { AppSyncClient, AUTH_TYPE } from '@aws-appsync/client';
+const AWSAppSyncClient = require('aws-appsync').default;
+const AUTH_TYPE = require('aws-appsync').AUTH_TYPE;
 import gql from 'graphql-tag';
 import Sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';

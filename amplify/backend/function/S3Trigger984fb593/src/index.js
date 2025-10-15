@@ -5,7 +5,8 @@
 	REGION
 Amplify Params - DO NOT EDIT */
 
-import { AppSyncClient, AUTH_TYPE } from '@aws-appsync/client';
+const AWSAppSyncClient = require('aws-appsync').default;
+const AUTH_TYPE = require('aws-appsync').AUTH_TYPE;
 import gql from 'graphql-tag';
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
 
