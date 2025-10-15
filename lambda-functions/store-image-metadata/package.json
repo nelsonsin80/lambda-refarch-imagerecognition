@@ -1,15 +1,24 @@
 {
-	"name": "store-image-metadata",
-	"version": "1.0.0",
-	"description": "Store extracted image info into backend database",
-	"main": "index.js",
-	"repository": "https://github.com/aws-samples/lambda-refarch-imagerecognition",
-	"author": "Angela Wang",
-	"license": "Apache-2",
-	"dependencies": {
-		"aws-appsync": "^4.1.9",
-		"graphql": "^16.6.0",
-		"graphql-tag": "^2.12.6",
-		"isomorphic-fetch": "^3.0.0"
-	}
+  "name": "store-image-metadata",
+  "version": "2.0.0",
+  "description": "Store extracted image info into backend database (Node 18 compatible)",
+  "author": "Angela Wang",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "index.js",
+  "repository": "https://github.com/aws-samples/lambda-refarch-imagerecognition",
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "lint": "node --check index.js",
+    "test": "echo \"No tests specified\""
+  },
+  "dependencies": {
+    "@aws-appsync/client": "4.0.0",
+    "@aws-sdk/credential-providers": "3.700.0",
+    "graphql": "16.9.0",
+    "graphql-tag": "2.12.6",
+    "uuid": "9.0.1"
+  }
 }

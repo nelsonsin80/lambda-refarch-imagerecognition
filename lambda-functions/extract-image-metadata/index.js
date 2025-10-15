@@ -1,40 +1,65 @@
-// dependencies
-const AWS = require('aws-sdk');
-const gm  = require('gm').subClass({ imageMagick: true }); // Enable ImageMagick integration.
-const util = require('util');
-const Promise = require('bluebird');
-Promise.promisifyAll(gm.prototype);
+import util from 'util';
+import gm from 'gm';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
-// get reference to S3 client
-const s3 = new AWS.S3();
+// ---------------------------------------------------------------------------
+// Configure GraphicsMagick with ImageMagick support
+// ---------------------------------------------------------------------------
+const gmIM = gm.subClass({ imageMagick: true });
 
-exports.handler = (event, context, callback) => {
-	// Read input from the event.
-	console.log("Reading input from event:\n", util.inspect(event, { depth: 5 }));
-	const srcBucket = event.s3Bucket;
-	// Object key may have spaces or unicode non-ASCII characters.
-	const srcKey = decodeURIComponent(event.s3Key.replace(/\+/g, " "));
+// ---------------------------------------------------------------------------
+// Initialize S3 client (AWS SDK v3 automatically uses Lambda IAM credentials)
+// ---------------------------------------------------------------------------
+const s3 = new S3Client({ region: process.env.AWS_REGION });
 
-	var getObjectPromise = s3.getObject({
-		Bucket: srcBucket,
-		Key: srcKey
-	}).promise();
+/**
+ * Identify metadata for an image buffer using GraphicsMagick/ImageMagick.
+ * Wrapped in a native Promise for clarity.
+ */
+const identifyAsync = (imageBuffer) =>
+  new Promise((resolve, reject) => {
+    gmIM(imageBuffer).identify((err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
 
-	getObjectPromise.then((getObjectResponse) => {
-		gm(getObjectResponse.Body).identifyAsync().then((data) => {
-			console.log("Identified metadata:\n", util.inspect(data, { depth: 5 }));
-			callback(null, data);
-		}).catch(function (err) {
-			callback(new ImageIdentifyError(err));
+/**
+ * Lambda handler — reads an image from S3 and returns its metadata.
+ */
+export const handler = async (event) => {
+  console.log('Reading input from event:\n', util.inspect(event, { depth: 5 }));
 
-		});
-	}).catch(function (err) {
-		callback(err);
-	});
+  const srcBucket = event.s3Bucket;
+  const srcKey = decodeURIComponent(event.s3Key.replace(/\+/g, ' '));
+
+  try {
+    // Fetch image object from S3
+    const { Body } = await s3.send(new GetObjectCommand({ Bucket: srcBucket, Key: srcKey }));
+
+    if (!Body) throw new ImageIdentifyError('Empty S3 object body.');
+
+    // Convert stream to Buffer
+    const imageBuffer = Buffer.from(await Body.transformToByteArray());
+    if (!imageBuffer.length) throw new ImageIdentifyError('S3 object is zero-length.');
+
+    // Extract metadata
+    const metadata = await identifyAsync(imageBuffer);
+    console.log('Identified metadata:\n', JSON.stringify(metadata, null, 2));
+
+    return metadata;
+  } catch (err) {
+    console.error('Error identifying image metadata:', err);
+    throw new ImageIdentifyError(err.message || String(err));
+  }
 };
 
-function ImageIdentifyError(message) {
-	this.name = "ImageIdentifyError";
-	this.message = message;
+/**
+ * Custom error type for image identification failures.
+ */
+class ImageIdentifyError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ImageIdentifyError';
+  }
 }
-ImageIdentifyError.prototype = new Error();

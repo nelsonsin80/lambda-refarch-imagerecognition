@@ -1,11 +1,15 @@
 {
   "name": "rekognition",
-  "version": "1.0.0",
-  "description": "call Amazon Rekognition to detect labels in an image stored in s3",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "version": "2.0.0",
+  "description": "Calls Amazon Rekognition to detect labels in an image stored in S3 (Node 18 compatible)",
   "author": "Angela Wang",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {
+    "@aws-sdk/client-rekognition": "^3.700.0"
+  }
 }
