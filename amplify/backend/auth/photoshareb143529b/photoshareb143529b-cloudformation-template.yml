@@ -101,7 +101,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       #RoleName: !If [ShouldNotCreateEnvResources, 'photosb143529b_sns-role', !Join ['',[ 'sns', !Select [3, !Split ['-', !Ref 'AWS::StackName']], '-', !Ref env]]]
-      RoleName: !Sub "sns-${AWS::StackName}-role"
+      RoleName: RoleName: !Join ['-', ['sns', !Select [3, !Split ['-', !Ref 'AWS::StackName']], !Ref env]]
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
         Statement: 
