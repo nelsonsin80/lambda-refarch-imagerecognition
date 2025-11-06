@@ -4,7 +4,29 @@
       "Region": "us-east-2",
       "DeploymentBucketName": "amplify-lambdarefarchimagere-main-cfb75-deployment",
       "StackName": "amplify-lambdarefarchimagere-main-cfb75",
-      "AmplifyAppId": "d39m8qzfl7wdoh"
+      "AmplifyAppId": "d5hk9iyyljz30"
+    }
+  },
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-photoshare-dev-a10c1-authRole",
+      "UnauthRoleArn": "arn:aws:iam::862142721131:role/amplify-photoshare-dev-a10c1-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::862142721131:role/amplify-photoshare-dev-a10c1-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-photoshare-dev-a10c1-deployment",
+      "UnauthRoleName": "amplify-photoshare-dev-a10c1-unauthRole",
+      "StackName": "amplify-photoshare-dev-a10c1",
+      "StackId": "arn:aws:cloudformation:us-east-2:862142721131:stack/amplify-photoshare-dev-a10c1/15014e00-aeeb-11f0-83c4-0a5ff89c0c1f",
+      "AmplifyAppId": "d1m90dn54ca6wb"
+    },
+    "categories": {
+      "auth": {
+        "photoshareb143529b": {}
+      },
+      "function": {
+        "S3Trigger984fb593": {},
+        "photoshare": {}
+      }
     }
   }
 }
