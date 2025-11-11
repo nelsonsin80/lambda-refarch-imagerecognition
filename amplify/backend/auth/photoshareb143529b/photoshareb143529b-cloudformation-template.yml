@@ -1,148 +1,46 @@
-AWSTemplateFormatVersion: 2010-09-09
-
-Parameters:
-  env:
-    Type: String
-  authRoleArn:
-    Type: String
-  unauthRoleArn:
-    Type: String
-
-  identityPoolName:
-    Type: String
-  allowUnauthenticatedIdentities:
-    Type: String
-  resourceNameTruncated:
-    Type: String
-  userPoolName:
-    Type: String
-  autoVerifiedAttributes:
-    Type: CommaDelimitedList
-  mfaConfiguration:
-    Type: String
-  mfaTypes:
-    Type: CommaDelimitedList
-  smsAuthenticationMessage:
-    Type: String
-  smsVerificationMessage:
-    Type: String
-  emailVerificationSubject:
-    Type: String
-  emailVerificationMessage:
-    Type: String
-  defaultPasswordPolicy:
-    Type: String
-  passwordPolicyMinLength:
-    Type: Number
-  passwordPolicyCharacters:
-    Type: CommaDelimitedList
-  requiredAttributes:
-    Type: CommaDelimitedList
-  userpoolClientGenerateSecret:
-    Type: String
-  userpoolClientRefreshTokenValidity:
-    Type: Number
-  userpoolClientWriteAttributes:
-    Type: CommaDelimitedList
-  userpoolClientReadAttributes:
-    Type: CommaDelimitedList
-  userpoolClientLambdaRole:
-    Type: String
-  userpoolClientSetAttributes:
-    Type: String
-  resourceName:
-    Type: String
-  authSelections:
-    Type: String
-  useDefault:
-    Type: String
-  userPoolGroupList:
-    Type: CommaDelimitedList
-  dependsOn:
-    Type: CommaDelimitedList
-
-Conditions:
-  ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]
-
 Resources:
 
   # ---------------------------------------------------------
   # SNS role used by Cognito SMS configuration (for MFA)
-  # Name pattern: sns-<shortStackToken>-<env>-<shortGuid>
+  # Name: sns-<env>-<8char-guid-from-StackId>
   # ---------------------------------------------------------
-  # SNSRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     RoleName: !Join
-  #       - '-'
-  #       - - 'sns'
-  #         - !Select [3, !Split ['-', !Ref 'AWS::StackName']]
-  #         - !Ref env
-  #         - !Select
-  #             - 0
-  #             - !Split
-  #               - '-'
-  #               - !Select [3, !Split ['/', !Ref 'AWS::StackId']]
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Sid: ""
-  #           Effect: "Allow"
-  #           Principal:
-  #             Service: "cognito-idp.amazonaws.com"
-  #           Action:
-  #             - "sts:AssumeRole"
-  #           Condition:
-  #             StringEquals:
-  #               sts:ExternalId: photosb143529b_role_external_id
-  #     Policies:
-  #       - PolicyName: photosb143529b-sns-policy
-  #         PolicyDocument:
-  #           Version: "2012-10-17"
-  #           Statement:
-  #             - Effect: "Allow"
-  #               Action:
-  #                 - "sns:Publish"
-  #               Resource: "*"
-
   SNSRole:
-  Type: AWS::IAM::Role
-  Properties:
-    # Role name = "sns-<env>-<8char-guid-from-StackId>"
-    RoleName: !Join
-      - '-'
-      - - 'sns'
-        - !Ref env
-        - !Select
-            - 0
-            - !Split
-              - '-'
-              - !Select
-                - 2
-                - !Split
-                  - '/'
-                  - !Ref 'AWS::StackId'
-    AssumeRolePolicyDocument:
-      Version: "2012-10-17"
-      Statement:
-        - Sid: ""
-          Effect: "Allow"
-          Principal:
-            Service: "cognito-idp.amazonaws.com"
-          Action:
-            - "sts:AssumeRole"
-          Condition:
-            StringEquals:
-              sts:ExternalId: photosb143529b_role_external_id
-    Policies:
-      - PolicyName: photosb143529b-sns-policy
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "sns:Publish"
-              Resource: "*"
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join
+        - '-'
+        - - 'sns'
+          - !Ref env
+          - !Select
+              - 0
+              - !Split
+                - '-'
+                - !Select
+                  - 2
+                  - !Split
+                    - '/'
+                    - !Ref 'AWS::StackId'
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: "Allow"
+            Principal:
+              Service: "cognito-idp.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+            Condition:
+              StringEquals:
+                sts:ExternalId: photosb143529b_role_external_id
+      Policies:
+        - PolicyName: photosb143529b-sns-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "sns:Publish"
+                Resource: "*"
 
   # ---------------------------------------------------------
   # User Pool and Clients
@@ -191,7 +89,7 @@ Resources:
 
   # ---------------------------------------------------------
   # Role for the custom resource Lambda
-  # Name pattern: upClientLambdaRole-<shortStackToken>-<env>-<shortGuid>
+  # Name: upClientLambdaRole-<env>-<8char-guid-from-StackId>
   # ---------------------------------------------------------
   UserPoolClientRole:
     Type: AWS::IAM::Role
@@ -199,13 +97,16 @@ Resources:
       RoleName: !Join
         - '-'
         - - 'upClientLambdaRole'
-          - !Select [3, !Split ['-', !Ref 'AWS::StackName']]
           - !Ref env
           - !Select
               - 0
               - !Split
                 - '-'
-                - !Select [3, !Split ['/', !Ref 'AWS::StackId']]
+                - !Select
+                  - 2
+                  - !Split
+                    - '/'
+                    - !Ref 'AWS::StackId'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -218,7 +119,7 @@ Resources:
     DependsOn: UserPoolClient
 
   # ---------------------------------------------------------
-  # Python custom resource Lambda (replaces old Node inline)
+  # Python custom resource Lambda (no aws-sdk needed)
   # ---------------------------------------------------------
   UserPoolClientLambda:
     Type: AWS::Lambda::Function
@@ -274,98 +175,3 @@ Resources:
             except Exception as e:
               send_response(event, context, "FAILED", {}, str(e))
     DependsOn: UserPoolClientRole
-
-  # ---------------------------------------------------------
-  # Policies for the custom resource role
-  # ---------------------------------------------------------
-  UserPoolClientLambdaPolicy:
-    Type: 'AWS::IAM::Policy'
-    Properties:
-      PolicyName: photosb143529b_userpoolclient_lambda_iam_policy
-      Roles:
-        - !Ref UserPoolClientRole
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Action:
-              - 'cognito-idp:DescribeUserPoolClient'
-            Resource: "*"   # DescribeUserPoolClient requires "*"
-    DependsOn: UserPoolClientLambda
-
-  UserPoolClientLogPolicy:
-    Type: 'AWS::IAM::Policy'
-    Properties:
-      PolicyName: photosb143529b_userpoolclient_lambda_log_policy
-      Roles:
-        - !Ref UserPoolClientRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - 'logs:CreateLogGroup'
-              - 'logs:CreateLogStream'
-              - 'logs:PutLogEvents'
-            Resource: !Sub
-              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*
-              - { region: !Ref "AWS::Region",  account: !Ref "AWS::AccountId", lambda: !Ref UserPoolClientLambda }
-    DependsOn: UserPoolClientLambdaPolicy
-
-  # ---------------------------------------------------------
-  # Invoke the custom resource to fetch ClientSecret
-  # ---------------------------------------------------------
-  UserPoolClientInputs:
-    Type: 'Custom::LambdaCallout'
-    Properties:
-      ServiceToken: !GetAtt UserPoolClientLambda.Arn
-      clientId: !Ref UserPoolClient
-      userpoolId: !Ref UserPool
-    DependsOn: UserPoolClientLogPolicy
-
-  # ---------------------------------------------------------
-  # Identity Pool and role attachment
-  # ---------------------------------------------------------
-  IdentityPool:
-    Type: AWS::Cognito::IdentityPool
-    Properties:
-      IdentityPoolName: !If
-        - ShouldNotCreateEnvResources
-        - 'photoshareb143529b_identitypool_b143529b'
-        - !Join ['',['photoshareb143529b_identitypool_b143529b', '__', !Ref env]]
-      CognitoIdentityProviders:
-        - ClientId:  !Ref UserPoolClient
-          ProviderName: !Sub 'cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}'
-        - ClientId:  !Ref UserPoolClientWeb
-          ProviderName: !Sub 'cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}'
-      AllowUnauthenticatedIdentities: !Ref allowUnauthenticatedIdentities
-    DependsOn: UserPoolClientInputs
-
-  IdentityPoolRoleMap:
-    Type: AWS::Cognito::IdentityPoolRoleAttachment
-    Properties:
-      IdentityPoolId: !Ref IdentityPool
-      Roles:
-        unauthenticated: !Ref unauthRoleArn
-        authenticated: !Ref authRoleArn
-    DependsOn: IdentityPool
-
-Outputs:
-  IdentityPoolId:
-    Value: !Ref 'IdentityPool'
-    Description: Id for the identity pool
-  IdentityPoolName:
-    Value: !GetAtt IdentityPool.Name
-  UserPoolId:
-    Value: !Ref 'UserPool'
-    Description: Id for the user pool
-  UserPoolName:
-    Value: !Ref userPoolName
-  AppClientIDWeb:
-    Value: !Ref 'UserPoolClientWeb'
-    Description: The user pool app client id for web
-  AppClientID:
-    Value: !Ref 'UserPoolClient'
-    Description: The user pool app client id
-  AppClientSecret:
-    Value: !GetAtt UserPoolClientInputs.appSecret
