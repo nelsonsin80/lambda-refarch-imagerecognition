@@ -70,40 +70,79 @@ Resources:
   # SNS role used by Cognito SMS configuration (for MFA)
   # Name pattern: sns-<shortStackToken>-<env>-<shortGuid>
   # ---------------------------------------------------------
+  # SNSRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     RoleName: !Join
+  #       - '-'
+  #       - - 'sns'
+  #         - !Select [3, !Split ['-', !Ref 'AWS::StackName']]
+  #         - !Ref env
+  #         - !Select
+  #             - 0
+  #             - !Split
+  #               - '-'
+  #               - !Select [3, !Split ['/', !Ref 'AWS::StackId']]
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Sid: ""
+  #           Effect: "Allow"
+  #           Principal:
+  #             Service: "cognito-idp.amazonaws.com"
+  #           Action:
+  #             - "sts:AssumeRole"
+  #           Condition:
+  #             StringEquals:
+  #               sts:ExternalId: photosb143529b_role_external_id
+  #     Policies:
+  #       - PolicyName: photosb143529b-sns-policy
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: "Allow"
+  #               Action:
+  #                 - "sns:Publish"
+  #               Resource: "*"
+
   SNSRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Join
-        - '-'
-        - - 'sns'
-          - !Select [3, !Split ['-', !Ref 'AWS::StackName']]
-          - !Ref env
-          - !Select
-              - 0
-              - !Split
-                - '-'
-                - !Select [3, !Split ['/', !Ref 'AWS::StackId']]
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: ""
-            Effect: "Allow"
-            Principal:
-              Service: "cognito-idp.amazonaws.com"
-            Action:
-              - "sts:AssumeRole"
-            Condition:
-              StringEquals:
-                sts:ExternalId: photosb143529b_role_external_id
-      Policies:
-        - PolicyName: photosb143529b-sns-policy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - "sns:Publish"
-                Resource: "*"
+  Type: AWS::IAM::Role
+  Properties:
+    # Role name = "sns-<env>-<8char-guid-from-StackId>"
+    RoleName: !Join
+      - '-'
+      - - 'sns'
+        - !Ref env
+        - !Select
+            - 0
+            - !Split
+              - '-'
+              - !Select
+                - 2
+                - !Split
+                  - '/'
+                  - !Ref 'AWS::StackId'
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Sid: ""
+          Effect: "Allow"
+          Principal:
+            Service: "cognito-idp.amazonaws.com"
+          Action:
+            - "sts:AssumeRole"
+          Condition:
+            StringEquals:
+              sts:ExternalId: photosb143529b_role_external_id
+    Policies:
+      - PolicyName: photosb143529b-sns-policy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "sns:Publish"
+              Resource: "*"
 
   # ---------------------------------------------------------
   # User Pool and Clients
