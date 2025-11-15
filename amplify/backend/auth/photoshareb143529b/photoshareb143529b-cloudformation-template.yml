@@ -197,6 +197,25 @@ Resources:
         Ref: UserPool
     DependsOn: UserPool
 
+  # New identity pool resource so we can output IdentityPoolId
+  IdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName:
+        Fn::If:
+          - ShouldNotCreateEnvResources
+          - Ref: identityPoolName
+          - Fn::Join:
+              - ''
+              - - Ref: identityPoolName
+                - '-'
+                - Ref: env
+      AllowUnauthenticatedIdentities: !Ref allowUnauthenticatedIdentities
+      CognitoIdentityProviders:
+        - ClientId: !Ref UserPoolClient
+          ProviderName: !GetAtt UserPool.ProviderName
+          ServerSideTokenCheck: true
+
   UserPoolClientRole:
     Type: AWS::IAM::Role
     Properties:
@@ -286,7 +305,12 @@ Resources:
 Outputs:
   UserPoolId:
     Value: !Ref UserPool
+
   AppClientID:
     Value: !Ref UserPoolClient
+
   AppClientIDWeb:
     Value: !Ref UserPoolClientWeb
+
+  IdentityPoolId:
+    Value: !Ref IdentityPool
