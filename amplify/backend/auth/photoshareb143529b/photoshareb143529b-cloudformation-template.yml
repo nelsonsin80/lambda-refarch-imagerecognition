@@ -1,112 +1,219 @@
-Resources:
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  {"createdOn":"Linux","createdBy":"Amplify","createdWith":"14.2.2","stackType":"auth-Cognito","metadata":{"whyContinueWithGen1":""}}
 
-  # ---------------------------------------------------------
-  # SNS role used by Cognito SMS configuration (for MFA)
-  # Name: sns-<env>-<8char-guid-from-StackId>
-  # ---------------------------------------------------------
+Parameters:
+  env:
+    Type: String
+
+  authRoleArn:
+    Type: String
+
+  unauthRoleArn:
+    Type: String
+
+  identityPoolName:
+    Type: String
+
+  allowUnauthenticatedIdentities:
+    Type: String
+
+  resourceNameTruncated:
+    Type: String
+
+  userPoolName:
+    Type: String
+
+  autoVerifiedAttributes:
+    Type: CommaDelimitedList
+
+  mfaConfiguration:
+    Type: String
+
+  mfaTypes:
+    Type: CommaDelimitedList
+
+  smsAuthenticationMessage:
+    Type: String
+
+  smsVerificationMessage:
+    Type: String
+
+  emailVerificationSubject:
+    Type: String
+
+  emailVerificationMessage:
+    Type: String
+
+  defaultPasswordPolicy:
+    Type: String
+
+  passwordPolicyMinLength:
+    Type: Number
+
+  passwordPolicyCharacters:
+    Type: CommaDelimitedList
+
+  requiredAttributes:
+    Type: CommaDelimitedList
+
+  userpoolClientGenerateSecret:
+    Type: String  # Amplify commonly passes "true"/"false" as strings
+
+  userpoolClientRefreshTokenValidity:
+    Type: Number
+
+  userpoolClientWriteAttributes:
+    Type: CommaDelimitedList
+
+  userpoolClientReadAttributes:
+    Type: CommaDelimitedList
+
+  userpoolClientLambdaRole:
+    Type: String
+
+  userpoolClientSetAttributes:
+    Type: String
+
+  resourceName:
+    Type: String
+
+  authSelections:
+    Type: String
+
+  useDefault:
+    Type: String
+
+  userPoolGroupList:
+    Type: CommaDelimitedList
+
+  dependsOn:
+    Type: CommaDelimitedList
+
+Conditions:
+  ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]
+
+Resources:
   SNSRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join
-        - '-'
-        - - 'sns'
-          - !Ref env
-          - !Select
-              - 0
-              - !Split
-                - '-'
-                - !Select
-                  - 2
-                  - !Split
-                    - '/'
-                    - !Ref 'AWS::StackId'
+      RoleName:
+        Fn::Join:
+          - '-'
+          - - sns
+            - Ref: env
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - '-'
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Sid: ""
-            Effect: "Allow"
+          - Sid: ''
+            Effect: Allow
             Principal:
-              Service: "cognito-idp.amazonaws.com"
+              Service: cognito-idp.amazonaws.com
             Action:
-              - "sts:AssumeRole"
+              - sts:AssumeRole
             Condition:
               StringEquals:
                 sts:ExternalId: photosb143529b_role_external_id
       Policies:
         - PolicyName: photosb143529b-sns-policy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - "sns:Publish"
-                Resource: "*"
+                  - sns:Publish
+                Resource: '*'
 
-  # ---------------------------------------------------------
-  # User Pool and Clients
-  # ---------------------------------------------------------
   UserPool:
     Type: AWS::Cognito::UserPool
     UpdateReplacePolicy: Retain
     Properties:
-      UserPoolName: !If [ShouldNotCreateEnvResources, !Ref userPoolName, !Join ['',[!Ref userPoolName, '-', !Ref env]]]
+      UserPoolName:
+        Fn::If:
+          - ShouldNotCreateEnvResources
+          - Ref: userPoolName
+          - Fn::Join:
+              - ''
+              - - Ref: userPoolName
+                - '-'
+                - Ref: env
       Schema:
         - Name: email
           Required: true
           Mutable: true
-      AutoVerifiedAttributes: !Ref autoVerifiedAttributes
-      EmailVerificationMessage: !Ref emailVerificationMessage
-      EmailVerificationSubject: !Ref emailVerificationSubject
+      AutoVerifiedAttributes:
+        Ref: autoVerifiedAttributes
+      EmailVerificationMessage:
+        Ref: emailVerificationMessage
+      EmailVerificationSubject:
+        Ref: emailVerificationSubject
       Policies:
         PasswordPolicy:
-          MinimumLength: !Ref passwordPolicyMinLength
+          MinimumLength:
+            Ref: passwordPolicyMinLength
           RequireLowercase: false
           RequireNumbers: false
           RequireSymbols: false
           RequireUppercase: false
-      MfaConfiguration: !Ref mfaConfiguration
-      SmsVerificationMessage: !Ref smsVerificationMessage
+      MfaConfiguration:
+        Ref: mfaConfiguration
+      SmsVerificationMessage:
+        Ref: smsVerificationMessage
       SmsConfiguration:
-        SnsCallerArn: !GetAtt SNSRole.Arn
+        SnsCallerArn:
+          Fn::GetAtt:
+            - SNSRole
+            - Arn
         ExternalId: photosb143529b_role_external_id
 
   UserPoolClientWeb:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: photosb143529b_app_clientWeb
-      RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
-      UserPoolId: !Ref UserPool
+      RefreshTokenValidity:
+        Ref: userpoolClientRefreshTokenValidity
+      UserPoolId:
+        Ref: UserPool
     DependsOn: UserPool
 
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: photosb143529b_app_client
-      GenerateSecret: !Ref userpoolClientGenerateSecret
-      RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
-      UserPoolId: !Ref UserPool
+      GenerateSecret:
+        Ref: userpoolClientGenerateSecret
+      RefreshTokenValidity:
+        Ref: userpoolClientRefreshTokenValidity
+      UserPoolId:
+        Ref: UserPool
     DependsOn: UserPool
 
-  # ---------------------------------------------------------
-  # Role for the custom resource Lambda
-  # Name: upClientLambdaRole-<env>-<8char-guid-from-StackId>
-  # ---------------------------------------------------------
   UserPoolClientRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join
-        - '-'
-        - - 'upClientLambdaRole'
-          - !Ref env
-          - !Select
-              - 0
-              - !Split
-                - '-'
-                - !Select
-                  - 2
-                  - !Split
-                    - '/'
-                    - !Ref 'AWS::StackId'
+      RoleName:
+        Fn::Join:
+          - '-'
+          - - upClientLambdaRole
+            - Ref: env
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - '-'
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -115,19 +222,19 @@ Resources:
               Service:
                 - lambda.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - sts:AssumeRole
     DependsOn: UserPoolClient
 
-  # ---------------------------------------------------------
-  # Python custom resource Lambda (no aws-sdk needed)
-  # ---------------------------------------------------------
   UserPoolClientLambda:
     Type: AWS::Lambda::Function
     Properties:
       Runtime: python3.11
       Handler: index.handler
       Timeout: 300
-      Role: !GetAtt [UserPoolClientRole, Arn]
+      Role:
+        Fn::GetAtt:
+          - UserPoolClientRole
+          - Arn
       Code:
         ZipFile: |
           import json
@@ -137,41 +244,49 @@ Resources:
           identity = boto3.client('cognito-idp')
 
           def send_response(event, context, status, data=None, reason=None, physical_id=None):
-            body = {
-              "Status": status,
-              "Reason": reason or f"See CloudWatch Log Stream: {getattr(context, 'log_stream_name', 'unknown')}",
-              "PhysicalResourceId": physical_id or getattr(context, 'log_stream_name', 'custom-resource'),
-              "StackId": event["StackId"],
-              "RequestId": event["RequestId"],
-              "LogicalResourceId": event["LogicalResourceId"],
-              "Data": data or {}
-            }
-            blob = json.dumps(body).encode("utf-8")
-            req = urllib.request.Request(
-              url=event["ResponseURL"],
-              data=blob,
-              method="PUT",
-              headers={"content-type": "", "content-length": str(len(blob))}
-            )
-            with urllib.request.urlopen(req):
-              pass
+              body = {
+                  "Status": status,
+                  "Reason": reason or f"See CloudWatch Log Stream: {getattr(context, 'log_stream_name', 'unknown')}",
+                  "PhysicalResourceId": physical_id or getattr(context, 'log_stream_name', 'custom-resource'),
+                  "StackId": event["StackId"],
+                  "RequestId": event["RequestId"],
+                  "LogicalResourceId": event["LogicalResourceId"],
+                  "Data": data or {}
+              }
+              blob = json.dumps(body).encode("utf-8")
+              req = urllib.request.Request(
+                  url=event["ResponseURL"],
+                  data=blob,
+                  method="PUT",
+                  headers={"content-type": "", "content-length": str(len(blob))}
+              )
+              with urllib.request.urlopen(req):
+                  pass
 
           def handler(event, context):
-            try:
-              req_type = event.get("RequestType")
-              if req_type == "Delete":
-                send_response(event, context, "SUCCESS", {})
-                return
-              if req_type in ("Create", "Update"):
-                props = event.get("ResourceProperties", {})
-                res = identity.describe_user_pool_client(
-                  ClientId=props["clientId"],
-                  UserPoolId=props["userpoolId"]
-                )
-                secret = res.get("UserPoolClient", {}).get("ClientSecret", "")
-                send_response(event, context, "SUCCESS", {"appSecret": secret})
-                return
-              send_response(event, context, "FAILED", {}, "Unsupported RequestType")
-            except Exception as e:
-              send_response(event, context, "FAILED", {}, str(e))
+              try:
+                  req_type = event.get("RequestType")
+                  if req_type == "Delete":
+                      send_response(event, context, "SUCCESS", {})
+                      return
+                  if req_type in ("Create", "Update"):
+                      props = event.get("ResourceProperties", {})
+                      res = identity.describe_user_pool_client(
+                          ClientId=props["clientId"],
+                          UserPoolId=props["userpoolId"]
+                      )
+                      secret = res.get("UserPoolClient", {}).get("ClientSecret", "")
+                      send_response(event, context, "SUCCESS", {"appSecret": secret})
+                      return
+                  send_response(event, context, "FAILED", {}, "Unsupported RequestType")
+              except Exception as e:
+                  send_response(event, context, "FAILED", {}, str(e))
     DependsOn: UserPoolClientRole
+
+Outputs:
+  UserPoolId:
+    Value: !Ref UserPool
+  AppClientID:
+    Value: !Ref UserPoolClient
+  AppClientIDWeb:
+    Value: !Ref UserPoolClientWeb
