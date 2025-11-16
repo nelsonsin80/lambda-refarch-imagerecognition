@@ -34,12 +34,6 @@ Resources:
   # ---------------------------------------------------------------------------------------------------------------------
   # This group of Lambda functions below make up the Step Functions state machine to execute the image processing workflow
   # ---------------------------------------------------------------------------------------------------------------------
-  ImageMagick:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location:
-        ApplicationId: arn:aws:serverlessrepo:us-east-1:145266761615:applications/image-magick-lambda-layer
-        SemanticVersion: 1.0.0
 
   ExtractImageMetadataFunction:
     Properties:
@@ -53,7 +47,7 @@ Resources:
             BucketName:
               !Ref PhotoRepoS3Bucket
       Layers:
-        - !GetAtt ImageMagick.Outputs.LayerVersion
+        - arn:aws:lambda:us-east-2:862142721131:layer:ImageMagickLayer:1
     Type: AWS::Serverless::Function
 
   TransformMetadataFunction:
@@ -106,7 +100,7 @@ Resources:
             BucketName:
               !Ref PhotoRepoS3Bucket
       Layers:
-        - !GetAtt ImageMagick.Outputs.LayerVersion
+        - arn:aws:lambda:us-east-2:862142721131:layer:ImageMagickLayer:1
     Type: AWS::Serverless::Function
 
   # ---------------------------------------------------------------------------------------------------------------------
