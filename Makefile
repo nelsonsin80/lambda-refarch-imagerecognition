@@ -21,22 +21,23 @@ deploy: ##=> Deploy services
 #	cd ../extract-image-metadata && npm install && \
 #	cd ../store-image-metadata && npm install && \
 
-	cd cloudformation/ && \
- 	sam build --template ${TEMPLATE_NAME}.serverless.yaml  && \
-	sam package \
-		  --s3-bucket ${DEPLOYMENT_BUCKET_NAME} \
-		  --s3-prefix photo-sharing-app/lambda/ \
-		  --output-template-file packaged.yaml && \
-	sam deploy \
-		--template-file packaged.yaml \
-		--stack-name ${STACK_NAME}-backend-${AWS_BRANCH} \
-		--capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
-		--parameter-overrides \
-		  PhotoRepoS3Bucket=${PHOTO_BUCKET} \
-		  GraphQLEndPoint=${APPSYNC_URL} \
-		  GraphQLAPIId=${GRAPHQL_API_ID} \
-		  Stage=${AWS_BRANCH} \
-     	 --no-fail-on-empty-changeset
+# 	cd cloudformation/ && \
+#  	sam build --template ${TEMPLATE_NAME}.serverless.yaml  && \
+# 	sam package \
+# 		  --s3-bucket ${DEPLOYMENT_BUCKET_NAME} \
+# 		  --s3-prefix photo-sharing-app/lambda/ \
+# 		  --output-template-file packaged.yaml && \
+# 	sam deploy \
+# 		--template-file packaged.yaml \
+# 		--stack-name ${STACK_NAME}-backend-${AWS_BRANCH} \
+# 		--capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
+# 		--parameter-overrides \
+# 		  PhotoRepoS3Bucket=${PHOTO_BUCKET} \
+# 		  GraphQLEndPoint=${APPSYNC_URL} \
+# 		  GraphQLAPIId=${GRAPHQL_API_ID} \
+# 		  Stage=${AWS_BRANCH} \
+#      	 --no-fail-on-empty-changeset
+	@echo "Skipping SAM build/package/deploy in Amplify build; SAM backend already deployed separately."
 
 #############
 #  Helpers  #
