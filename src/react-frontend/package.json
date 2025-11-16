@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^14.4.3",
     "aws-amplify": "^5.0.9",
     "aws-amplify-react": "^5.1.9",
+    "graphql": "14.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
