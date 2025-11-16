@@ -1,20 +1,28 @@
 // Copyright 2017 Amazon Web Services, Inc. or its affiliates.
 // Licensed under the Apache License, Version 2.0 (the "License").
 
-import React from 'react';
-import { Amplify } from 'aws-amplify';
-import { Authenticator } from '@aws-amplify/ui-react';
-import awsExports from './aws-exports';
+import React from "react";
+import { Authenticator } from "@aws-amplify/ui-react";
 
-import { Grid, Header, Menu } from 'semantic-ui-react';
-import { BrowserRouter as Router, NavLink, Route } from 'react-router-dom';
+import { Grid, Header, Menu } from "semantic-ui-react";
+import {
+  BrowserRouter as Router,
+  NavLink,
+  Routes,
+  Route,
+  useParams,
+} from "react-router-dom";
 
-import { AlbumList, NewAlbum } from './components/Album';
-import { AlbumDetails } from './components/AlbumDetail';
+import { AlbumList, NewAlbum } from "./components/Album";
+import { AlbumDetails } from "./components/AlbumDetail";
 
-import '@aws-amplify/ui-react/styles.css';
+import "@aws-amplify/ui-react/styles.css";
 
-Amplify.configure(awsExports);
+// Small wrapper to bridge react-router-dom v6 params into AlbumDetails props
+function AlbumDetailsRoute() {
+  const { albumId } = useParams();
+  return <AlbumDetails id={albumId} />;
+}
 
 function App() {
   return (
@@ -38,20 +46,21 @@ function App() {
 
           <Grid padded>
             <Grid.Column>
-              <Route path="/" exact component={NewAlbum} />
-              <Route
-                path="/"
-                exact
-                component={() =>
-                  !user ? null : <AlbumList />
-                }
-              />
-              <Route
-                path="/albums/:albumId"
-                render={(props) => (
-                  <AlbumDetails id={props.match.params.albumId} />
-                )}
-              />
+              <Routes>
+                {/* Root route: show NewAlbum always, AlbumList only when user exists */}
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <NewAlbum />
+                      {user && <AlbumList />}
+                    </>
+                  }
+                />
+
+                {/* Album details route, using URL param */}
+                <Route path="/albums/:albumId" element={<AlbumDetailsRoute />} />
+              </Routes>
             </Grid.Column>
           </Grid>
         </Router>
