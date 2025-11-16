@@ -1,0 +1,36 @@
+diff --git a/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.browser.js b/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.browser.js
+index f38174a..34458cd 100644
+--- a/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.browser.js
++++ b/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.browser.js
+@@ -1,5 +1,6 @@
+ import { __assign } from "tslib";
+-import { name, version } from "./package.json";
++import pkg from "./package.json";
++const { name, version } = pkg;
+ import { Sha256 } from "@aws-crypto/sha256-browser";
+ import { eventStreamSerdeProvider } from "@aws-sdk/eventstream-serde-browser";
+ import { FetchHttpHandler, streamCollector } from "@aws-sdk/fetch-http-handler";
+diff --git a/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.js b/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.js
+index 955bc00..9a47c63 100644
+--- a/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.js
++++ b/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.js
+@@ -1,5 +1,6 @@
+ import { __assign } from "tslib";
+-import { name, version } from "./package.json";
++import pkg from "./package.json";
++const { name, version } = pkg;
+ import { NODE_REGION_CONFIG_FILE_OPTIONS, NODE_REGION_CONFIG_OPTIONS } from "@aws-sdk/config-resolver";
+ import { defaultProvider as credentialDefaultProvider } from "@aws-sdk/credential-provider-node";
+ import { eventStreamSerdeProvider } from "@aws-sdk/eventstream-serde-node";
+diff --git a/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.native.js b/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.native.js
+index e70a061..280121d 100644
+--- a/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.native.js
++++ b/node_modules/@aws-sdk/client-kinesis/dist/es/runtimeConfig.native.js
+@@ -1,5 +1,6 @@
+ import { __assign } from "tslib";
+-import { name, version } from "./package.json";
++import pkg from "./package.json";
++const { name, version } = pkg;
+ import { Sha256 } from "@aws-crypto/sha256-js";
+ import { parseUrl } from "@aws-sdk/url-parser-node";
+ import { ClientDefaultValues as BrowserDefaults } from "./runtimeConfig.browser";
